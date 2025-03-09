@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.ChongwushenheDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.chongwu_id as chongwuId
+        ,a.yonghu_id as yonghuId
+        ,a.chongwushenhe_text as chongwushenheText
+        ,a.chongwushenhe_yesno_types as chongwushenheYesnoTypes
+        ,a.chongwushenhe_yesno_text as chongwushenheYesnoText
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.ChongwushenheView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,chongwu.chongwu_name as chongwuName
+        ,chongwu.chongwu_types as chongwuTypes
+        ,chongwu.status_types as statusTypes
+        ,chongwu.chongwu_photo as chongwuPhoto
+        ,chongwu.chongwu_money as chongwuMoney
+        ,chongwu.jieshu_types as jieshuTypes
+        ,chongwu.chongwu_content as chongwuContent
+        ,yonghu.yonghu_name as yonghuName
+        ,yonghu.yonghu_photo as yonghuPhoto
+        ,yonghu.yonghu_phone as yonghuPhone
+        ,yonghu.yonghu_email as yonghuEmail
+        ,yonghu.new_money as newMoney
+        ,yonghu.yonghu_delete as yonghuDelete
+
+        FROM chongwushenhe  a
+        left JOIN chongwu chongwu ON a.chongwu_id = chongwu.id
+        left JOIN yonghu yonghu ON a.yonghu_id = yonghu.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.chongwuId != null and params.chongwuId != ''">
+                and (
+                    a.chongwu_id = #{params.chongwuId}
+                )
+            </if>
+            <if test="params.yonghuId != null and params.yonghuId != ''">
+                and (
+                    a.yonghu_id = #{params.yonghuId}
+                )
+            </if>
+            <if test=" params.chongwushenheText != '' and params.chongwushenheText != null and params.chongwushenheText != 'null' ">
+                and a.chongwushenhe_text like CONCAT('%',#{params.chongwushenheText},'%')
+            </if>
+            <if test="params.chongwushenheYesnoTypes != null and params.chongwushenheYesnoTypes != ''">
+                and a.chongwushenhe_yesno_types = #{params.chongwushenheYesnoTypes}
+            </if>
+            <if test=" params.chongwushenheYesnoText != '' and params.chongwushenheYesnoText != null and params.chongwushenheYesnoText != 'null' ">
+                and a.chongwushenhe_yesno_text like CONCAT('%',#{params.chongwushenheYesnoText},'%')
+            </if>
+
+                <!-- 判断动物领养/捐赠的id不为空 -->
+            <if test=" params.chongwuIdNotNull != '' and params.chongwuIdNotNull != null and params.chongwuIdNotNull != 'null' ">
+                and a.chongwu_id IS NOT NULL
+            </if>
+            <if test=" params.chongwuName != '' and params.chongwuName != null and params.chongwuName != 'null' ">
+                and chongwu.chongwu_name like CONCAT('%',#{params.chongwuName},'%')
+            </if>
+            <if test="params.chongwuTypes != null  and params.chongwuTypes != ''">
+                and chongwu.chongwu_types = #{params.chongwuTypes}
+            </if>
+
+            <if test="params.statusTypes != null  and params.statusTypes != ''">
+                and chongwu.status_types = #{params.statusTypes}
+            </if>
+
+            <if test="params.chongwuMoneyStart != null ">
+                <![CDATA[  and chongwu.chongwu_money >= #{params.chongwuMoneyStart}   ]]>
+            </if>
+            <if test="params.chongwuMoneyEnd != null ">
+                <![CDATA[  and chongwu.chongwu_money <= #{params.chongwuMoneyEnd}   ]]>
+            </if>
+            <if test="params.jieshuTypes != null  and params.jieshuTypes != ''">
+                and chongwu.jieshu_types = #{params.jieshuTypes}
+            </if>
+
+            <if test=" params.chongwuContent != '' and params.chongwuContent != null and params.chongwuContent != 'null' ">
+                and chongwu.chongwu_content like CONCAT('%',#{params.chongwuContent},'%')
+            </if>
+                <!-- 判断用户的id不为空 -->
+            <if test=" params.yonghuIdNotNull != '' and params.yonghuIdNotNull != null and params.yonghuIdNotNull != 'null' ">
+                and a.yonghu_id IS NOT NULL
+            </if>
+            <if test=" params.yonghuName != '' and params.yonghuName != null and params.yonghuName != 'null' ">
+                and yonghu.yonghu_name like CONCAT('%',#{params.yonghuName},'%')
+            </if>
+            <if test=" params.yonghuPhone != '' and params.yonghuPhone != null and params.yonghuPhone != 'null' ">
+                and yonghu.yonghu_phone like CONCAT('%',#{params.yonghuPhone},'%')
+            </if>
+            <if test=" params.yonghuEmail != '' and params.yonghuEmail != null and params.yonghuEmail != 'null' ">
+                and yonghu.yonghu_email like CONCAT('%',#{params.yonghuEmail},'%')
+            </if>
+            <if test="params.newMoneyStart != null ">
+                <![CDATA[  and yonghu.new_money >= #{params.newMoneyStart}   ]]>
+            </if>
+            <if test="params.newMoneyEnd != null ">
+                <![CDATA[  and yonghu.new_money <= #{params.newMoneyEnd}   ]]>
+            </if>
+            <if test="params.yonghuDeleteStart != null  and params.yonghuDeleteStart != '' ">
+                <![CDATA[  and yonghu.yonghu_delete >= #{params.yonghuDeleteStart}   ]]>
+            </if>
+            <if test="params.yonghuDeleteEnd != null  and params.yonghuDeleteEnd != '' ">
+                <![CDATA[  and yonghu.yonghu_delete <= #{params.yonghuDeleteEnd}   ]]>
+            </if>
+            <if test="params.yonghuDelete != null  and params.yonghuDelete != '' ">
+                and yonghu.yonghu_delete = #{params.yonghuDelete}
+            </if>
+        </where>
+
+        order by a.${params.orderBy} desc 
+    </select>
+
+</mapper>
